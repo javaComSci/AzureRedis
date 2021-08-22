@@ -1,5 +1,7 @@
 ﻿using System;
 using StackExchange.Redis;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 
 namespace AzureRedis
 {
@@ -7,7 +9,15 @@ namespace AzureRedis
     {
         static void Main(string[] args)
         {
-            var connectionString = "";
+            var keyVaultName = Environment.GetEnvironmentVariable("KEY_VAULT_NAME");
+            var kvUri = $"https://{keyVaultName}.vault.azure.net";
+            var client = new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
+
+            var connection = client.GetSecret("hiddenlocation1");
+            var connectionString = connection.Value.Value;
+
+            Console.WriteLine(connectionString);
+
             var redisConnection = ConnectionMultiplexer.Connect(connectionString);
 
             Console.WriteLine("Name");
